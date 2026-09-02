@@ -1,0 +1,10 @@
+{
+  "name": "PalmResearch - Palmprint Biometrics Platform",
+  "description": "A comprehensive PhD-grade palmprint biometric research platform featuring ROI extraction, Gabor & Competitive Code enhancement, quality assessment, 1:1/1:N recognition, landmark tracking, dual comparison, and benchmark datasets.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
