@@ -1,0 +1,20 @@
+# ML / Computer Vision service dependencies.
+#
+# Version policy: exact pins for reproducibility. Every pin below ships binary
+# wheels for CPython 3.12 and 3.13 (the Docker baseline is python:3.12-slim)
+# and is also installable on CPython 3.14.
+fastapi==0.158.1
+uvicorn[standard]==0.54.0
+pydantic==2.14.1
+pydantic-settings==2.16.1
+python-multipart==0.0.20
+httpx==0.28.1
+numpy==2.5.4
+opencv-python-headless==4.14.0.94
+Pillow==13.0.0
+scikit-image==0.26.0
+scikit-learn==1.8.0
+scipy==1.17.0
+reportlab==5.0.1
+pytest==9.1.1
+pytest-asyncio==1.4.0

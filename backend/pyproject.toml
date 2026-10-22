@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "palmprint-backend"
+version = "0.1.0"
+description = "REST API of the Palmprint Research Platform"
+readme = "README.md"
+requires-python = ">=3.11"
+
+[tool.setuptools]
+packages = ["app"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q --strict-markers"
+asyncio_mode = "auto"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["migrations/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["B008", "B904"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011"]

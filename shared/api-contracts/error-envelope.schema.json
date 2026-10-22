@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://palmprint.local/schemas/error-envelope.json",
+  "title": "ErrorEnvelope",
+  "type": "object",
+  "required": ["status", "error"],
+  "additionalProperties": false,
+  "properties": {
+    "status": {
+      "const": "error"
+    },
+    "error": {
+      "type": "object",
+      "required": ["code", "message", "details"],
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-z0-9_]+$"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "details": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

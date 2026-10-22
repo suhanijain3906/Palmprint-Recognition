@@ -1,0 +1,16 @@
+# Additional dependencies that are only required to run the backend test
+# suite and the linters.  They are intentionally NOT part of the runtime
+# image: the backend does no image processing itself, it only orchestrates
+# the ML service.
+#
+#   pip install -r requirements.txt -r requirements-dev.txt
+
+-r requirements.txt
+
+# Test fixtures synthesise palm-like images with NumPy + Pillow.  No real
+# biometric data is shipped with the repository.
+numpy==2.5.4
+Pillow==13.0.0
+
+# Linting / formatting
+ruff==0.17.1

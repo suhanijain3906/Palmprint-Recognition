@@ -1,0 +1,112 @@
+name: palmprint-research
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+    networks:
+      - internal
+
+  ml-service:
+    build:
+      context: ./ml-service
+      dockerfile: Dockerfile
+    environment:
+      ML_LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      ML_ARTIFACT_DIR: /app/data/artifacts
+      ML_SERVICE_API_KEY: ${ML_SERVICE_API_KEY:?ML_SERVICE_API_KEY is required}
+    volumes:
+      - ml_artifacts:/app/data/artifacts
+      - ml_models:/app/models
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: always
+    networks:
+      - internal
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      STORAGE_BACKEND: ${STORAGE_BACKEND:-local}
+      STORAGE_ROOT: /app/data/storage
+      ML_SERVICE_URL: http://ml-service:8001
+      ML_SERVICE_TIMEOUT: "60.0"
+      ML_SERVICE_API_KEY: ${ML_SERVICE_API_KEY:?ML_SERVICE_API_KEY is required}
+      AUTH_ENABLED: ${AUTH_ENABLED:-true}
+      ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-true}
+      DEMO_MODE: "false"
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:?ALLOWED_ORIGINS is required}
+      SECRET_KEY: ${SECRET_KEY:?SECRET_KEY is required}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      S3_BUCKET: ${S3_BUCKET:-}
+      S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-}
+      S3_REGION: ${S3_REGION:-us-east-1}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-}
+      S3_USE_PATH_STYLE: ${S3_USE_PATH_STYLE:-true}
+    volumes:
+      - backend_storage:/app/data/storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ml-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: always
+    networks:
+      - internal
+      - external
+    command: ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: always
+    networks:
+      - external
+
+volumes:
+  postgres_data:
+  ml_artifacts:
+  ml_models:
+  backend_storage:
+
+networks:
+  internal:
+    driver: bridge
+    internal: true
+  external:
+    driver: bridge

@@ -1,0 +1,1538 @@
+{
+  "components": {
+    "schemas": {
+      "AlgorithmInfo": {
+        "description": "Identifier of the algorithm that produced a result.",
+        "properties": {
+          "anatomical": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anatomical"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "AlgorithmInfo",
+        "type": "object"
+      },
+      "ArtifactRef": {
+        "description": "Reference to a stored output image.",
+        "properties": {
+          "download_path": {
+            "title": "Download Path",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "default": "image/png",
+            "title": "Media Type",
+            "type": "string"
+          },
+          "size_bytes": {
+            "default": 0,
+            "title": "Size Bytes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "download_path"
+        ],
+        "title": "ArtifactRef",
+        "type": "object"
+      },
+      "Body_analyze_quality_endpoint_api_v1_quality_analyze_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_analyze_quality_endpoint_api_v1_quality_analyze_post",
+        "type": "object"
+      },
+      "Body_apply_enhancement_endpoint_api_v1_enhancement_apply_post": {
+        "properties": {
+          "algorithm": {
+            "default": "clahe",
+            "title": "Algorithm",
+            "type": "string"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          },
+          "clip_limit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clip Limit"
+          },
+          "color_space": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color Space"
+          },
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          },
+          "filter": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filter"
+          },
+          "kernel_size": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kernel Size"
+          },
+          "radius": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Radius"
+          },
+          "sigma": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sigma"
+          },
+          "tile_grid_size": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tile Grid Size"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_apply_enhancement_endpoint_api_v1_enhancement_apply_post",
+        "type": "object"
+      },
+      "Body_compare_images_endpoint_api_v1_images_compare_post": {
+        "properties": {
+          "image_a": {
+            "contentMediaType": "application/octet-stream",
+            "title": "Image A",
+            "type": "string"
+          },
+          "image_b": {
+            "contentMediaType": "application/octet-stream",
+            "title": "Image B",
+            "type": "string"
+          }
+        },
+        "required": [
+          "image_a",
+          "image_b"
+        ],
+        "title": "Body_compare_images_endpoint_api_v1_images_compare_post",
+        "type": "object"
+      },
+      "Body_extract_features_endpoint_api_v1_features_extract_post": {
+        "properties": {
+          "detector": {
+            "default": "orb",
+            "title": "Detector",
+            "type": "string"
+          },
+          "edge_threshold": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Edge Threshold"
+          },
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          },
+          "n_features": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N Features"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_extract_features_endpoint_api_v1_features_extract_post",
+        "type": "object"
+      },
+      "Body_extract_roi_endpoint_api_v1_roi_extract_post": {
+        "properties": {
+          "algorithm": {
+            "default": "classical_contour_roi",
+            "title": "Algorithm",
+            "type": "string"
+          },
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          },
+          "median_ksize": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Ksize"
+          },
+          "morph_kernel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Morph Kernel"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_extract_roi_endpoint_api_v1_roi_extract_post",
+        "type": "object"
+      },
+      "Body_recognize_endpoint_api_v1_recognition_compare_post": {
+        "properties": {
+          "detector": {
+            "default": "orb",
+            "title": "Detector",
+            "type": "string"
+          },
+          "image_a": {
+            "contentMediaType": "application/octet-stream",
+            "title": "Image A",
+            "type": "string"
+          },
+          "image_b": {
+            "contentMediaType": "application/octet-stream",
+            "title": "Image B",
+            "type": "string"
+          },
+          "lowe_ratio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lowe Ratio"
+          },
+          "n_features": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N Features"
+          }
+        },
+        "required": [
+          "image_a",
+          "image_b"
+        ],
+        "title": "Body_recognize_endpoint_api_v1_recognition_compare_post",
+        "type": "object"
+      },
+      "Body_validate_image_api_v1_validate_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_validate_image_api_v1_validate_post",
+        "type": "object"
+      },
+      "Body_visualize_landmarks_endpoint_api_v1_landmarks_visualize_post": {
+        "properties": {
+          "detector": {
+            "default": "orb",
+            "title": "Detector",
+            "type": "string"
+          },
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          },
+          "max_points": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Points"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_visualize_landmarks_endpoint_api_v1_landmarks_visualize_post",
+        "type": "object"
+      },
+      "ComparisonResultResponse": {
+        "properties": {
+          "algorithm": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AlgorithmInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "artifacts": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef"
+            },
+            "title": "Artifacts",
+            "type": "array"
+          },
+          "comparison": {
+            "additionalProperties": true,
+            "title": "Comparison",
+            "type": "object"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "metrics": {
+            "additionalProperties": true,
+            "title": "Metrics",
+            "type": "object"
+          },
+          "processing_time_ms": {
+            "default": 0.0,
+            "title": "Processing Time Ms",
+            "type": "number"
+          },
+          "status": {
+            "default": "success",
+            "title": "Status",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "title": "ComparisonResultResponse",
+        "type": "object"
+      },
+      "EnhancementResultResponse": {
+        "properties": {
+          "algorithm": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AlgorithmInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "artifacts": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef"
+            },
+            "title": "Artifacts",
+            "type": "array"
+          },
+          "enhancement": {
+            "additionalProperties": true,
+            "title": "Enhancement",
+            "type": "object"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "metrics": {
+            "additionalProperties": true,
+            "title": "Metrics",
+            "type": "object"
+          },
+          "processing_time_ms": {
+            "default": 0.0,
+            "title": "Processing Time Ms",
+            "type": "number"
+          },
+          "status": {
+            "default": "success",
+            "title": "Status",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "title": "EnhancementResultResponse",
+        "type": "object"
+      },
+      "EvaluationRequest": {
+        "description": "Labelled comparison scores for a genuine/impostor evaluation.",
+        "example": {
+          "labels": [
+            1,
+            0,
+            1,
+            0
+          ],
+          "scores": [
+            0.82,
+            0.31,
+            0.74,
+            0.12
+          ]
+        },
+        "properties": {
+          "labels": {
+            "description": "1 = genuine, 0 = impostor.",
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 1,
+            "title": "Labels",
+            "type": "array"
+          },
+          "scores": {
+            "description": "Similarity scores per comparison.",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 1,
+            "title": "Scores",
+            "type": "array"
+          },
+          "thresholds": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional operating thresholds for the FAR/FRR table.",
+            "title": "Thresholds"
+          }
+        },
+        "required": [
+          "scores",
+          "labels"
+        ],
+        "title": "EvaluationRequest",
+        "type": "object"
+      },
+      "EvaluationResultResponse": {
+        "properties": {
+          "algorithm": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AlgorithmInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "artifacts": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef"
+            },
+            "title": "Artifacts",
+            "type": "array"
+          },
+          "evaluation": {
+            "additionalProperties": true,
+            "title": "Evaluation",
+            "type": "object"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "metrics": {
+            "additionalProperties": true,
+            "title": "Metrics",
+            "type": "object"
+          },
+          "processing_time_ms": {
+            "default": 0.0,
+            "title": "Processing Time Ms",
+            "type": "number"
+          },
+          "status": {
+            "default": "success",
+            "title": "Status",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "title": "EvaluationResultResponse",
+        "type": "object"
+      },
+      "FeatureResultResponse": {
+        "properties": {
+          "algorithm": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AlgorithmInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "artifacts": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef"
+            },
+            "title": "Artifacts",
+            "type": "array"
+          },
+          "features": {
+            "additionalProperties": true,
+            "title": "Features",
+            "type": "object"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "metrics": {
+            "additionalProperties": true,
+            "title": "Metrics",
+            "type": "object"
+          },
+          "processing_time_ms": {
+            "default": 0.0,
+            "title": "Processing Time Ms",
+            "type": "number"
+          },
+          "status": {
+            "default": "success",
+            "title": "Status",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "title": "FeatureResultResponse",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HealthResponse": {
+        "properties": {
+          "algorithms": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Algorithms",
+            "type": "array"
+          },
+          "service": {
+            "title": "Service",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "trained_models": {
+            "additionalProperties": true,
+            "title": "Trained Models",
+            "type": "object"
+          },
+          "uptime_seconds": {
+            "title": "Uptime Seconds",
+            "type": "number"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "service",
+          "version",
+          "uptime_seconds"
+        ],
+        "title": "HealthResponse",
+        "type": "object"
+      },
+      "LandmarkResultResponse": {
+        "properties": {
+          "algorithm": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AlgorithmInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "artifacts": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef"
+            },
+            "title": "Artifacts",
+            "type": "array"
+          },
+          "landmarks": {
+            "additionalProperties": true,
+            "title": "Landmarks",
+            "type": "object"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "metrics": {
+            "additionalProperties": true,
+            "title": "Metrics",
+            "type": "object"
+          },
+          "processing_time_ms": {
+            "default": 0.0,
+            "title": "Processing Time Ms",
+            "type": "number"
+          },
+          "status": {
+            "default": "success",
+            "title": "Status",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "title": "LandmarkResultResponse",
+        "type": "object"
+      },
+      "QualityResultResponse": {
+        "properties": {
+          "algorithm": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AlgorithmInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "artifacts": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef"
+            },
+            "title": "Artifacts",
+            "type": "array"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "metrics": {
+            "additionalProperties": true,
+            "title": "Metrics",
+            "type": "object"
+          },
+          "processing_time_ms": {
+            "default": 0.0,
+            "title": "Processing Time Ms",
+            "type": "number"
+          },
+          "quality": {
+            "additionalProperties": true,
+            "title": "Quality",
+            "type": "object"
+          },
+          "status": {
+            "default": "success",
+            "title": "Status",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "title": "QualityResultResponse",
+        "type": "object"
+      },
+      "ROIResultResponse": {
+        "properties": {
+          "algorithm": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AlgorithmInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "artifacts": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef"
+            },
+            "title": "Artifacts",
+            "type": "array"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "metrics": {
+            "additionalProperties": true,
+            "title": "Metrics",
+            "type": "object"
+          },
+          "processing_time_ms": {
+            "default": 0.0,
+            "title": "Processing Time Ms",
+            "type": "number"
+          },
+          "roi": {
+            "additionalProperties": true,
+            "title": "Roi",
+            "type": "object"
+          },
+          "status": {
+            "default": "success",
+            "title": "Status",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "title": "ROIResultResponse",
+        "type": "object"
+      },
+      "RecognitionResultResponse": {
+        "properties": {
+          "algorithm": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AlgorithmInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "artifacts": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef"
+            },
+            "title": "Artifacts",
+            "type": "array"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "metrics": {
+            "additionalProperties": true,
+            "title": "Metrics",
+            "type": "object"
+          },
+          "processing_time_ms": {
+            "default": 0.0,
+            "title": "Processing Time Ms",
+            "type": "number"
+          },
+          "recognition": {
+            "additionalProperties": true,
+            "title": "Recognition",
+            "type": "object"
+          },
+          "status": {
+            "default": "success",
+            "title": "Status",
+            "type": "string"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "title": "RecognitionResultResponse",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      },
+      "ValidationResult": {
+        "properties": {
+          "algorithm": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AlgorithmInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "artifacts": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef"
+            },
+            "title": "Artifacts",
+            "type": "array"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "metrics": {
+            "additionalProperties": true,
+            "title": "Metrics",
+            "type": "object"
+          },
+          "processing_time_ms": {
+            "default": 0.0,
+            "title": "Processing Time Ms",
+            "type": "number"
+          },
+          "status": {
+            "default": "success",
+            "title": "Status",
+            "type": "string"
+          },
+          "validation": {
+            "additionalProperties": true,
+            "title": "Validation",
+            "type": "object"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "title": "ValidationResult",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Computer vision and machine learning microservice for the Palmprint Research Platform.\n\nThis service implements classical, documented image processing pipelines. It ships **without trained biometric weights**; every recognition response states whether a trained model was used.",
+    "title": "Palmprint ML Service",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/algorithms": {
+      "get": {
+        "description": "Describe every algorithm the service can run and its limitations.",
+        "operationId": "list_algorithms_api_v1_algorithms_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response List Algorithms Api V1 Algorithms Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Catalogue of available algorithms",
+        "tags": [
+          "processing"
+        ]
+      }
+    },
+    "/api/v1/artifacts/{artifact_id}": {
+      "get": {
+        "description": "Return a previously generated output image.",
+        "operationId": "get_artifact_api_v1_artifacts__artifact_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artifact_id",
+            "required": true,
+            "schema": {
+              "title": "Artifact Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Download a generated artefact",
+        "tags": [
+          "processing"
+        ]
+      }
+    },
+    "/api/v1/enhancement/apply": {
+      "post": {
+        "description": "Enhance an image.  The original is never modified.",
+        "operationId": "apply_enhancement_endpoint_api_v1_enhancement_apply_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_apply_enhancement_endpoint_api_v1_enhancement_apply_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnhancementResultResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Apply an enhancement algorithm",
+        "tags": [
+          "processing"
+        ]
+      }
+    },
+    "/api/v1/evaluation/run": {
+      "post": {
+        "description": "Compute ROC/AUC/FAR/FRR/EER from labelled comparison scores.",
+        "operationId": "run_evaluation_api_v1_evaluation_run_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvaluationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationResultResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Run a biometric evaluation",
+        "tags": [
+          "processing"
+        ]
+      }
+    },
+    "/api/v1/features/extract": {
+      "post": {
+        "description": "Extract keypoints and descriptors with a classical detector.",
+        "operationId": "extract_features_endpoint_api_v1_features_extract_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_extract_features_endpoint_api_v1_features_extract_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeatureResultResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Extract image features",
+        "tags": [
+          "processing"
+        ]
+      }
+    },
+    "/api/v1/images/compare": {
+      "post": {
+        "description": "Side-by-side comparison artefacts: difference image, PSNR and SSIM.",
+        "operationId": "compare_images_endpoint_api_v1_images_compare_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_compare_images_endpoint_api_v1_images_compare_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComparisonResultResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Compare two images",
+        "tags": [
+          "processing"
+        ]
+      }
+    },
+    "/api/v1/landmarks/visualize": {
+      "post": {
+        "description": "Render an overlay of the detected feature points.\n\nThe response distinguishes generic feature points from anatomical palm\nlandmarks; only the former can be produced by the bundled algorithms.",
+        "operationId": "visualize_landmarks_endpoint_api_v1_landmarks_visualize_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_visualize_landmarks_endpoint_api_v1_landmarks_visualize_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LandmarkResultResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Visualise detected feature points",
+        "tags": [
+          "processing"
+        ]
+      }
+    },
+    "/api/v1/quality/analyze": {
+      "post": {
+        "description": "Compute brightness, contrast, sharpness and the experimental combined score.",
+        "operationId": "analyze_quality_endpoint_api_v1_quality_analyze_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_analyze_quality_endpoint_api_v1_quality_analyze_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QualityResultResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Assess image quality",
+        "tags": [
+          "processing"
+        ]
+      }
+    },
+    "/api/v1/recognition/compare": {
+      "post": {
+        "description": "Experimental similarity comparison of two palmprint images.\n\nThe response states explicitly whether a trained model was used.  When no\ntrained model is installed the similarity score is an uncalibrated\nheuristic index and *not* a probability of identity.",
+        "operationId": "recognize_endpoint_api_v1_recognition_compare_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_recognize_endpoint_api_v1_recognition_compare_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecognitionResultResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Compare two images",
+        "tags": [
+          "processing"
+        ]
+      }
+    },
+    "/api/v1/roi/extract": {
+      "post": {
+        "description": "Run the ROI extraction pipeline and return the cropped region.",
+        "operationId": "extract_roi_endpoint_api_v1_roi_extract_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_extract_roi_endpoint_api_v1_roi_extract_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ROIResultResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Extract a region of interest",
+        "tags": [
+          "processing"
+        ]
+      }
+    },
+    "/api/v1/validate": {
+      "post": {
+        "description": "Decode the upload and report what was actually detected.",
+        "operationId": "validate_image_api_v1_validate_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_validate_image_api_v1_validate_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Validate an uploaded image",
+        "tags": [
+          "processing"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "description": "Report service state, uptime and the availability of trained models.",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Service health",
+        "tags": [
+          "health"
+        ]
+      }
+    }
+  }
+}

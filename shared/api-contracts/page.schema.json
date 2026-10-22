@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://palmprint.local/schemas/page.json",
+  "title": "Page",
+  "type": "object",
+  "required": ["items", "meta"],
+  "additionalProperties": false,
+  "properties": {
+    "items": {
+      "type": "array"
+    },
+    "meta": {
+      "type": "object",
+      "required": ["page", "page_size", "total", "total_pages"],
+      "additionalProperties": false,
+      "properties": {
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "page_size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total_pages": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

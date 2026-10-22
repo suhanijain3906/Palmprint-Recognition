@@ -1,0 +1,146 @@
+# Database
+
+The backend stores **metadata only**. Image bytes and generated artifacts live
+in object storage (local filesystem or S3-compatible storage).
+
+## Engine support
+
+- Development and tests: SQLite (`sqlite:///./data/palmprint.db`).
+- Production: PostgreSQL 16 (`postgresql+psycopg://...`).
+- Schema is managed with Alembic. `alembic upgrade head` is part of the
+  container start command.
+- `AUTO_CREATE_SCHEMA=true` exists for tests and ephemeral demos only; it
+  calls `Base.metadata.create_all` and is never used in production.
+
+Random 32-character hex identifiers are used for every primary key so IDs
+work identically on both engines and do not leak record counts.
+
+## Tables
+
+### `users`
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | string(32) | Primary key |
+| `email` | string(320) | Unique, indexed |
+| `display_name` | string(120) | |
+| `password_hash` | string(255), nullable | bcrypt hash |
+| `is_active` | boolean | |
+| `is_demo_account` | boolean | Shared account used when auth is disabled |
+| `created_at`, `updated_at` | timestamptz | |
+
+### `images`
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | string(32) | Primary key |
+| `owner_id` | string(32) | FK `users.id`, cascade delete |
+| `original_filename` | string(255) | Display only; never used as a path |
+| `storage_key` | string(512) | Unique storage locator |
+| `media_type` | string(64) | Detected from content |
+| `size_bytes` | integer | |
+| `width`, `height` | integer | |
+| `checksum_sha256` | string(64) | Indexed |
+| `label`, `subject_id` | string, nullable | Research annotations |
+| `notes` | string(500), nullable | |
+| `deleted_at` | timestamptz, nullable | Soft-delete marker |
+| `created_at`, `updated_at` | timestamptz | |
+
+Binary data is **not** stored in this table.
+
+### `processing_jobs`
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | string(32) | Primary key |
+| `owner_id` | string(32) | Indexed |
+| `image_id` | string(32), nullable | FK `images.id`, cascade delete |
+| `operation` | string(64) | e.g. `roi`, `enhancement`, `quality` |
+| `algorithm` | string(64) | e.g. `clahe`, `orb` |
+| `algorithm_version` | string(32), nullable | |
+| `status` | string(24) | `succeeded` or `failed` |
+| `parameters_json` | text | Exact parameters used |
+| `result_json` | text, nullable | Artifact references and metrics |
+| `metrics_json` | text, nullable | Measured values |
+| `warnings_json` | text, nullable | JSON array of caveats |
+| `duration_ms` | float, nullable | Measured wall-clock time |
+| `error_code`, `error_message` | string, nullable | Failure details |
+| `completed_at` | timestamptz, nullable | |
+| `created_at`, `updated_at` | timestamptz | |
+
+### `experiments`
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | string(32) | Primary key |
+| `owner_id` | string(32) | FK `users.id`, cascade delete |
+| `name` | string(160) | |
+| `description` | text, nullable | |
+| `operation` | string(64) | Processing operation |
+| `algorithm` | string(64) | |
+| `parameters_json` | text | |
+| `image_ids_json` | text | Ordered image IDs |
+| `status` | string(24) | `completed` or `failed` |
+| `duration_ms` | float, nullable | |
+| `error_message` | string(500), nullable | |
+| `report_id` | string(32), nullable | |
+| `created_at`, `updated_at` | timestamptz | |
+
+### `experiment_results`
+
+One row per measured result, linked to an experiment with cascade delete.
+Contains `kind`, optional `label`, `value`, `unit`, `details_json`, an
+optional `image_id` and `order_index`.
+
+### `reports`
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | string(32) | Primary key |
+| `owner_id` | string(32) | FK `users.id`, cascade delete |
+| `title` | string(200) | |
+| `report_type` | string(48) | |
+| `status` | string(24) | `ready` or `failed` |
+| `storage_key` | string(512), nullable | PDF location |
+| `size_bytes` | integer, nullable | |
+| `experiment_id`, `job_id` | string(32), nullable | Source data |
+| `error_message` | string(500), nullable | |
+| `generated_at` | timestamptz, nullable | |
+| `created_at`, `updated_at` | timestamptz | |
+
+## Why JSON text columns
+
+Parameters and results vary by algorithm. Keeping them as JSON text avoids a
+schema migration for every new algorithm while preserving the exact inputs
+and outputs needed for reproducibility. The application deserializes them
+defensively; malformed JSON never crashes a request.
+
+## Retention and deletion
+
+- `RETENTION_DAYS` is available for scheduled cleanup policies.
+- `DELETE /api/v1/images/{id}` soft-deletes the row and removes the stored
+  original.
+- Cascades remove jobs, experiments and reports tied to a deleted user.
+- Artifacts written by the ML service expire after
+  `ML_ARTIFACT_RETENTION_HOURS` (default 24); the backend keeps its own copy
+  of anything it needs.
+
+## Migrations
+
+```bash
+cd backend
+alembic revision --autogenerate -m "describe change"
+alembic upgrade head
+alembic downgrade -1
+```
+
+Always review autogenerated migrations, especially for SQLite, which has
+limited `ALTER TABLE` support.
+
+## Backups
+
+- PostgreSQL: `pg_dump` on a schedule; test restores regularly.
+- Local storage: back up the storage root and the database together so
+  metadata and files stay consistent.
+- S3: enable versioning and lifecycle rules according to your retention
+  policy.
