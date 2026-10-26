@@ -29,7 +29,7 @@ COPY app ./app
 COPY pyproject.toml ./
 
 RUN useradd --create-home --uid 10001 appuser \
-    && mkdir -p /app/data \
+    && mkdir -p /app/data/storage \
     && chown -R appuser:appuser /app
 USER appuser
 

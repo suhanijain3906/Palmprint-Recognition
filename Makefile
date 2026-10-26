@@ -28,16 +28,16 @@ test:
 	cd frontend && npm test
 
 build:
-	docker-compose build
+	docker compose build
 
 up:
-	docker-compose up -d
+	docker compose up -d
 
 down:
-	docker-compose down
+	docker compose down
 
 clean:
-	docker-compose down -v
+	docker compose down -v
 	rm -rf backend/.venv ml-service/.venv frontend/node_modules
 	find . -type d -name __pycache__ -exec rm -rf {} +
 	find . -type d -name .pytest_cache -exec rm -rf {} +

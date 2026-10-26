@@ -11,6 +11,7 @@ WORKDIR /app
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        libglib2.0-0 \
+       libgomp1 \
        libsm6 \
        libxext6 \
        libxrender1 \
@@ -22,7 +23,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
 COPY pyproject.toml ./
-COPY models ./models
 
 RUN useradd --create-home --uid 10001 appuser \
     && mkdir -p /app/data/artifacts /app/models \
