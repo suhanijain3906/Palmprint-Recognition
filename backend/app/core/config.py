@@ -47,7 +47,7 @@ class Settings(BaseSettings):
 
     # --- Application ----------------------------------------------------
     app_name: str = "Palmprint Research Platform API"
-    version: str = "0.1.0"
+    version: str = "0.1.1"
     environment: Literal["development", "testing", "production"] = "development"
     api_prefix: str = "/api/v1"
     debug: bool = False
