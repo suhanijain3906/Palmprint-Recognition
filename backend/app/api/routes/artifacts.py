@@ -24,7 +24,8 @@ router = APIRouter(prefix="/artifacts", tags=["artifacts"])
 def _find_owner_job(session, owner_id: str, artifact_key: str):
     """Return the job that produced the artefact, if the user owns it."""
     jobs = JobRepository(session)
-    for job in jobs.list_for_owner(owner_id, offset=0, limit=500):
+    owner_jobs, _ = jobs.list_for_owner(owner_id, offset=0, limit=500)
+    for job in owner_jobs:
         try:
             result = json.loads(job.result_json or "{}")
         except json.JSONDecodeError:  # pragma: no cover - defensive

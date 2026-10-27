@@ -22,6 +22,18 @@ def test_roi_returns_job_and_approximate_flag(client, palm_png: bytes) -> None:
     assert body["warnings"], "the approximate ROI must always carry a warning"
 
 
+def test_roi_artifact_can_be_downloaded(client, palm_png: bytes) -> None:
+    image_id = _image_id(client, palm_png)
+    response = client.post("/api/v1/processing/roi", json={"image_id": image_id})
+    assert response.status_code == 200, response.text
+
+    artifact_url = response.json()["artifacts"][0]["download_url"]
+    download = client.get(artifact_url)
+    assert download.status_code == 200, download.text
+    assert download.headers["content-type"] == "image/png"
+    assert download.content
+
+
 def test_enhancement_records_algorithm_and_parameters(client, palm_png: bytes) -> None:
     image_id = _image_id(client, palm_png)
     response = client.post(

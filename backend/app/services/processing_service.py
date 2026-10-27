@@ -342,6 +342,10 @@ class ProcessingService:
         algorithm_info = payload.get("algorithm") or {}
         duration = float(payload.get("processing_time_ms", 0.0))
         artifacts = self._store_artifacts(payload)
+        recorded_payload = {
+            **payload,
+            "artifacts": [artifact.model_dump() for artifact in artifacts],
+        }
 
         job = self._record_job(
             owner=owner,
@@ -350,7 +354,7 @@ class ProcessingService:
             algorithm=str(algorithm_info.get("name") or algorithm),
             algorithm_version=algorithm_info.get("version"),
             parameters=parameters,
-            payload=payload,
+            payload=recorded_payload,
             duration_ms=duration,
         )
 

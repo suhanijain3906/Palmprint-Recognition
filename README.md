@@ -140,6 +140,15 @@ production settings are `SECRET_KEY`, `POSTGRES_PASSWORD`,
 Never run demo mode (`AUTH_ENABLED=false`) on the public internet: all
 visitors share one account.
 
+The backend applies Alembic migrations automatically at startup
+(`AUTO_MIGRATE=true`). On Render it also falls back to the deployed ML URL when
+`ML_SERVICE_URL` is not set. The provided deployment is described by
+[`render.yaml`](render.yaml):
+
+- Backend: <https://palmprint-recognition.onrender.com>
+- ML service: <https://palmprint-recognition-1.onrender.com>
+- Smoke test: `python scripts/smoke_test.py --backend https://palmprint-recognition.onrender.com --ml https://palmprint-recognition-1.onrender.com`
+
 ## Project layout
 
 ```

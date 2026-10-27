@@ -95,6 +95,15 @@ class StubMLClient(MLServiceClient):
 
 def _stub_response(path: str, kwargs: dict[str, Any]) -> dict[str, Any]:
     """Return a payload that mimics the real ML service."""
+    if path.endswith("/health"):
+        return {
+            "status": "ok",
+            "service": "Palmprint ML Service",
+            "version": "0.1.0",
+            "uptime_seconds": 12.0,
+            "trained_models": {"trained_model_available": False},
+        }
+
     if path.endswith("/validate"):
         files = kwargs.get("files") or {}
         file_info = next(iter(files.values()))
@@ -395,6 +404,7 @@ def stub_ml(monkeypatch: pytest.MonkeyPatch) -> StubMLClient:
     monkeypatch.setattr("app.services.image_service.MLServiceClient", lambda *a, **k: client)
     monkeypatch.setattr("app.services.processing_service.MLServiceClient", lambda *a, **k: client)
     monkeypatch.setattr("app.api.dependencies.MLServiceClient", lambda *a, **k: client)
+    monkeypatch.setattr("app.api.routes.health.MLServiceClient", lambda *a, **k: client)
     return client
 
 

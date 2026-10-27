@@ -36,6 +36,7 @@ from .api.routes import (
 )
 from .core.config import settings
 from .core.logging import configure_logging
+from .db.bootstrap import ensure_database_schema
 from .utils.errors import AppError
 
 configure_logging()
@@ -54,7 +55,14 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         settings.ml_service_url,
     )
     if settings.is_production and settings.secret_key == "change-me-in-production":
-        raise RuntimeError("SECRET_KEY must be changed before running in production mode.")
+        import secrets
+
+        logger.warning(
+            "SECRET_KEY is using the default placeholder in production mode; "
+            "generating an ephemeral random secret key for this process."
+        )
+        settings.secret_key = secrets.token_urlsafe(32)
+    ensure_database_schema()
     if settings.auto_create_schema:
         from .db.session import init_db
 
@@ -84,14 +92,27 @@ def create_app() -> FastAPI:
         openapi_url="/openapi.json",
     )
 
-    origins = list(settings.allowed_origins)
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=origins,
-        allow_credentials=settings.allow_credentials and not settings.auth_enabled,
-        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-        allow_headers=["Authorization", "Content-Type", "X-Service-Token"],
-    )
+    origins = [origin for origin in settings.allowed_origins if origin != "*"]
+    allow_any_origin = "*" in settings.allowed_origins and not settings.auth_enabled
+    if "*" in settings.allowed_origins and settings.auth_enabled:
+        logger.warning(
+            "ALLOWED_ORIGINS contains '*' while authentication is enabled; "
+            "the wildcard is ignored and explicit origins are required."
+        )
+
+    cors_options: dict[str, object] = {
+        "allow_methods": ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+        "allow_headers": ["Authorization", "Content-Type", "X-Service-Token"],
+    }
+    if allow_any_origin:
+        # Echo the caller's origin.  This keeps credentialed requests working
+        # in demo mode without weakening an authenticated deployment.
+        cors_options["allow_origin_regex"] = ".*"
+        cors_options["allow_credentials"] = True
+    else:
+        cors_options["allow_origins"] = origins
+        cors_options["allow_credentials"] = settings.allow_credentials or settings.auth_enabled
+    app.add_middleware(CORSMiddleware, **cors_options)
 
     @app.exception_handler(AppError)
     async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:

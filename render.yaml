@@ -1,0 +1,95 @@
+# Render Blueprint for the Palmprint Research Platform.
+#
+# Apply this file from the Render dashboard ("New +" -> "Blueprint") or commit
+# it to the repository and let Render sync it.  The service names below match
+# the public deployments:
+#
+#   backend    https://palmprint-recognition.onrender.com
+#   ML service https://palmprint-recognition-1.onrender.com
+#
+# The backend applies the Alembic migrations on startup, so no separate release
+# command is required.  SQLite and local storage live on the ephemeral Render
+# filesystem: for durable data set DATABASE_URL to a managed PostgreSQL instance
+# and STORAGE_BACKEND=s3 before using this for real research data.
+
+services:
+  - type: web
+    name: palmprint-recognition-1
+    runtime: python
+    plan: free
+    rootDir: ml-service
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.8"
+      - key: ML_LOG_LEVEL
+        value: INFO
+      - key: ML_ARTIFACT_DIR
+        value: ./data/artifacts
+      - key: ML_SERVICE_API_KEY
+        value: ""
+
+  - type: web
+    name: palmprint-recognition
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.8"
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: SECRET_KEY
+        generateValue: true
+      # Ephemeral SQLite.  Replace with a managed PostgreSQL connection string
+      # for durable metadata.  postgres:// and postgresql:// URLs are
+      # normalised to the installed psycopg driver automatically.
+      - key: DATABASE_URL
+        value: sqlite:///./data/palmprint.db
+      - key: AUTO_MIGRATE
+        value: "true"
+      - key: STORAGE_BACKEND
+        value: local
+      - key: STORAGE_ROOT
+        value: ./data/storage
+      - key: AUTH_ENABLED
+        value: "false"
+      - key: DEMO_MODE
+        value: "true"
+      - key: ALLOW_REGISTRATION
+        value: "true"
+      - key: ALLOWED_ORIGINS
+        value: "*"
+      - key: ALLOW_CREDENTIALS
+        value: "true"
+      - key: ML_SERVICE_URL
+        value: https://palmprint-recognition-1.onrender.com
+      - key: ML_SERVICE_TIMEOUT
+        value: "120.0"
+      - key: ML_SERVICE_API_KEY
+        value: ""
+
+  - type: web
+    name: palmprint-frontend
+    runtime: static
+    plan: free
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    autoDeploy: true
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://palmprint-recognition.onrender.com/api/v1
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

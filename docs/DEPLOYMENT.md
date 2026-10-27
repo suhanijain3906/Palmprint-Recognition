@@ -140,27 +140,72 @@ location / {
 
 Set `ALLOWED_ORIGINS` to the public HTTPS origin.
 
+## Render (managed deployment)
+
+The repository ships a [`render.yaml`](../render.yaml) blueprint with three
+services:
+
+| Service | URL |
+| --- | --- |
+| Backend API | `https://palmprint-recognition.onrender.com` |
+| ML service | `https://palmprint-recognition-1.onrender.com` |
+| Frontend | created by the blueprint as `palmprint-frontend` |
+
+The blueprint sets `ML_SERVICE_URL` for the backend, builds the frontend with
+`VITE_API_BASE_URL=https://palmprint-recognition.onrender.com/api/v1` and uses
+the SPA rewrite `/* -> /index.html`.
+
+The backend applies its Alembic migrations at startup (`AUTO_MIGRATE=true`).
+If the database is empty it creates the schema directly, so an existing service
+that only runs `uvicorn app.main:app` becomes usable again after the next
+deploy. When upgrading an existing Render service, confirm these variables in
+the dashboard:
+
+```dotenv
+ML_SERVICE_URL=https://palmprint-recognition-1.onrender.com
+ML_SERVICE_TIMEOUT=120.0
+ALLOWED_ORIGINS=*
+ALLOW_CREDENTIALS=true
+AUTO_MIGRATE=true
+```
+
+`ALLOWED_ORIGINS=*` is honoured only while `AUTH_ENABLED=false`. Once accounts
+are enabled, list the exact frontend origins instead.
+
+Render's free filesystem is ephemeral. SQLite and local storage are reset on
+redeploy/restart. Use managed PostgreSQL (`DATABASE_URL`) and S3-compatible
+storage (`STORAGE_BACKEND=s3`) for durable data.
+
+Verify a deployment with:
+
+```bash
+python scripts/smoke_test.py \
+  --backend https://palmprint-recognition.onrender.com \
+  --ml https://palmprint-recognition-1.onrender.com
+```
+
 ## Configuration reference
 
 | Variable | Default | Notes |
 | --- | --- | --- |
 | `ENVIRONMENT` | `development` | `production` enables strict checks |
-| `DATABASE_URL` | SQLite file | Use PostgreSQL in production |
+| `DATABASE_URL` | SQLite file | `postgres://`/`postgresql://` are normalised to `psycopg` |
+| `AUTO_MIGRATE` | `true` | Apply Alembic migrations at startup |
 | `AUTO_CREATE_SCHEMA` | `false` | Tests/demos only |
 | `SECRET_KEY` | insecure default | Required in production |
 | `AUTH_ENABLED` | `false` | `true` for accounts |
 | `ALLOW_REGISTRATION` | `true` | Disable after provisioning |
 | `DEMO_MODE` | `true` | Shared account when auth is off |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | `720` | JWT lifetime |
-| `ALLOWED_ORIGINS` | localhost origins | Comma separated |
+| `ALLOWED_ORIGINS` | `*` | `*`, comma separated or JSON array; `*` only without auth |
 | `STORAGE_BACKEND` | `local` | `local` or `s3` |
 | `STORAGE_ROOT` | `./data/storage` | Local storage path |
 | `S3_*` | empty | Bucket, endpoint, region, keys, path style |
 | `MAX_UPLOAD_BYTES` | `12582912` | 12 MiB |
 | `MAX_IMAGE_PIXELS` | `40000000` | Decoding limit |
 | `RETENTION_DAYS` | `30` | Cleanup policy input |
-| `ML_SERVICE_URL` | `http://localhost:8001` | Internal URL |
-| `ML_SERVICE_TIMEOUT` | `60.0` | Seconds |
+| `ML_SERVICE_URL` | `http://localhost:8001` | Render falls back to the deployed ML URL |
+| `ML_SERVICE_TIMEOUT` | `120.0` | Seconds |
 | `ML_SERVICE_API_KEY` | empty | Shared service token |
 | `ML_ARTIFACT_DIR` | `./data/artifacts` | ML artifact path |
 | `ML_ARTIFACT_RETENTION_HOURS` | `24` | ML artifact expiry |

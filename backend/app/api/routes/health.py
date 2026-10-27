@@ -34,7 +34,9 @@ def health() -> HealthResponse:
 
     ml_status: dict[str, object] = {"status": "unknown"}
     try:
-        with MLServiceClient() as client:
+        # Keep the probe short so that a sleeping upstream never blocks the
+        # platform health check (and therefore a deployment).
+        with MLServiceClient(timeout=min(settings.ml_service_timeout, 10.0)) as client:
             payload = client.health()
         ml_status = {
             "status": "ok",

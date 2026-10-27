@@ -91,7 +91,10 @@ def register(payload: RegisterRequest, session: DbSession, response: Response) -
 def login(payload: LoginRequest, session: DbSession, response: Response) -> TokenResponse:
     """Exchange credentials for an access token."""
     service = AuthService(session)
-    user, token = service.login(email=str(payload.email), password=payload.password)
+    user, token = service.login(
+        email=str(payload.email),
+        password=payload.password,
+    )
     _set_session_cookie(response, token)
     return _token_response(user, token)
 
