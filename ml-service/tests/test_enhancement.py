@@ -10,6 +10,7 @@ from app.pipelines.enhancement_pipeline import apply_enhancement
 from app.utils.errors import AlgorithmError
 
 
+
 def test_clahe_returns_same_shape(synthetic_palm: np.ndarray) -> None:
     result = clahe.apply_clahe(synthetic_palm, clip_limit=2.0, tile_grid_size=8)
     assert result.shape == synthetic_palm.shape
