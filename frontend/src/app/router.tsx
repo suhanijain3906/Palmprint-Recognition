@@ -36,6 +36,8 @@ export const router = createBrowserRouter([
       { index: true, element: withSuspense(<HomePage />) },
       { path: 'dashboard', element: withSuspense(<DashboardPage />) },
       { path: 'upload', element: withSuspense(<UploadPage />) },
+      { path: 'upload-image', element: withSuspense(<UploadPage />) },
+      { path: 'palmprint-upload', element: withSuspense(<UploadPage />) },
       { path: 'processing', element: withSuspense(<ProcessingPage />) },
       { path: 'quality', element: withSuspense(<QualityPage />) },
       { path: 'recognition', element: withSuspense(<RecognitionPage />) },

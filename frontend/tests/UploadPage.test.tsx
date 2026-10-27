@@ -51,6 +51,11 @@ describe('validateFile', () => {
     const file = new File(['x'], 'palm.png', { type: 'image/png' })
     expect(validateFile(file)).toBeNull()
   })
+
+  it('accepts a supported jpeg', () => {
+    const file = new File(['x'], 'palm.jpg', { type: 'image/jpeg' })
+    expect(validateFile(file)).toBeNull()
+  })
 })
 
 describe('UploadPage', () => {
