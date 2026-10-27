@@ -7,10 +7,7 @@ export interface AsyncState<T> {
   error: string | null
 }
 
-/**
- * Run an async function and track loading/error/data state.
- * The callback is not invoked automatically; call `run` explicitly.
- */
+
 export function useAsyncAction<TArgs extends unknown[], TResult>(
   action: (...args: TArgs) => Promise<TResult>,
 ): AsyncState<TResult> & { run: (...args: TArgs) => Promise<TResult | null>; reset: () => void } {
