@@ -26,6 +26,9 @@ function withSuspense(element: ReactNode) {
 
 export const router = createBrowserRouter([
   { path: '/login', element: withSuspense(<LoginPage />) },
+  { path: '/analysis', element: withSuspense(<AnalysisPage />) },
+  { path: '/analyze', element: withSuspense(<AnalysisPage />) },
+  { path: '/palmprint-analysis', element: withSuspense(<AnalysisPage />) },
   {
     path: '/',
     element: (
@@ -55,4 +58,5 @@ export const router = createBrowserRouter([
     ],
   },
 ])
+
 
