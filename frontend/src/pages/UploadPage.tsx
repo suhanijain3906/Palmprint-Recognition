@@ -113,7 +113,8 @@ export function UploadPage() {
             <div><dt className="text-slate-400">SHA-256</dt><dd className="truncate font-mono text-xs">{uploaded.checksum_sha256.slice(0,12)}…</dd></div>
           </dl>
           <div className="mt-4 flex gap-3">
-            <button type="button" className="btn-primary" onClick={() => navigate('/processing?image=' + uploaded.id)}>Process this image</button>
+            <button type="button" className="btn-primary" onClick={() => navigate('/analysis?image=' + uploaded.id)}>Analyze this image</button>
+            <button type="button" className="btn-secondary" onClick={() => navigate('/processing?image=' + uploaded.id)}>Process this image</button>
             <button type="button" className="btn-secondary" onClick={() => { setSelected(null); setUploaded(null); setLabel(''); setSubjectId(''); setNotes(''); }}>Upload another</button>
           </div>
         </Card>
