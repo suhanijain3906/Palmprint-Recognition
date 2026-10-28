@@ -1,10 +1,10 @@
-import type { LucideIcon } from 'lucide-react'
+// lucide types removed
 import { Link } from 'react-router-dom'
 
 interface StatCardProps {
   label: string
   value: string | number
-  icon: LucideIcon
+  icon: any
   to: string
 }
 
