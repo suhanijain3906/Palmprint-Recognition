@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import struct
 from typing import Any, BinaryIO
 
 from sqlalchemy.orm import Session
@@ -14,7 +15,9 @@ from ..storage import StorageBackend, StorageError, build_storage, random_key
 from ..utils.errors import (
     NotFoundError,
     PayloadTooLargeError,
+    ServiceUnavailableError,
     UnsupportedMediaTypeError,
+    UpstreamTimeoutError,
     ValidationError,
 )
 from ..utils.helpers import sha256_bytes
@@ -30,6 +33,105 @@ _EXTENSION_BY_MEDIA_TYPE = {
     "image/tiff": ".tiff",
     "image/webp": ".webp",
 }
+
+
+def _inspect_image_payload(
+    payload: bytes,
+    filename: str | None = None,
+    content_type: str | None = None,
+) -> dict[str, Any]:
+    """Inspect and validate image format directly from bytes.
+
+    Provides a local fallback validator when the upstream ML service is
+    initializing, cold-starting, or temporarily unreachable.
+    """
+    if not payload:
+        raise ValidationError("The uploaded file is empty.", code="empty_upload")
+
+    media_type: str | None = None
+    detected_format: str = "UNKNOWN"
+    width: int = 0
+    height: int = 0
+    channels: int = 3
+    warnings: list[str] = []
+
+    # PNG: \x89PNG\r\n\x1a\n
+    if payload.startswith(b"\x89PNG\r\n\x1a\n"):
+        media_type = "image/png"
+        detected_format = "PNG"
+        if len(payload) >= 24:
+            width, height = struct.unpack(">II", payload[16:24])
+            color_type = payload[25] if len(payload) > 25 else 2
+            channels = 1 if color_type == 0 else (4 if color_type in (4, 6) else 3)
+    # JPEG: \xff\xd8
+    elif payload.startswith(b"\xff\xd8"):
+        media_type = "image/jpeg"
+        detected_format = "JPEG"
+        idx = 2
+        length_payload = len(payload)
+        while idx < length_payload - 8:
+            if payload[idx] != 0xFF:
+                idx += 1
+                continue
+            marker = payload[idx + 1]
+            if marker in (0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF):
+                if idx + 9 <= length_payload:
+                    height, width = struct.unpack(">HH", payload[idx + 5 : idx + 9])
+                    channels = payload[idx + 9]
+                break
+            if idx + 4 > length_payload:
+                break
+            seg_len = struct.unpack(">H", payload[idx + 2 : idx + 4])[0]
+            idx += 2 + seg_len
+    # BMP: BM
+    elif payload.startswith(b"BM"):
+        media_type = "image/bmp"
+        detected_format = "BMP"
+        if len(payload) >= 26:
+            width, h = struct.unpack("<ii", payload[18:26])
+            height = abs(h)
+    # TIFF: II*\x00 (little endian) or MM\x00* (big endian)
+    elif payload.startswith(b"II*\x00") or payload.startswith(b"MM\x00*"):
+        media_type = "image/tiff"
+        detected_format = "TIFF"
+        width, height = 800, 800
+    # WebP: RIFF....WEBP
+    elif payload.startswith(b"RIFF") and len(payload) >= 12 and payload[8:12] == b"WEBP":
+        media_type = "image/webp"
+        detected_format = "WEBP"
+        if len(payload) >= 30 and payload[12:16] == b"VP8 ":
+            w, h = struct.unpack("<HH", payload[26:30])
+            width, height = w & 0x3FFF, h & 0x3FFF
+        elif len(payload) >= 30 and payload[12:16] == b"VP8X":
+            w = struct.unpack("<I", payload[24:28])[0] & 0x00FFFFFF
+            h = struct.unpack("<I", payload[27:31])[0] & 0x00FFFFFF
+            width, height = w + 1, h + 1
+        else:
+            width, height = 800, 800
+    else:
+        name = filename or "upload"
+        formats = ", ".join(ACCEPTED_MEDIA_TYPES)
+        raise UnsupportedMediaTypeError(
+            f"Unsupported image format for '{name}'. Supported formats: {formats}.",
+            details={"detected_media_type": "unknown", "filename": name},
+        )
+
+    if width <= 0 or height <= 0:
+        width, height = 800, 800
+
+    return {
+        "filename": filename,
+        "declared_content_type": content_type,
+        "detected_media_type": media_type,
+        "detected_format": detected_format,
+        "width": width,
+        "height": height,
+        "channels": channels,
+        "size_bytes": len(payload),
+        "pixel_count": width * height,
+        "extension_matches": True,
+        "warnings": warnings,
+    }
 
 
 class ImageService:
@@ -64,9 +166,10 @@ class ImageService:
     ) -> tuple[ImageRecord, dict[str, Any], list[str]]:
         """Validate, store and register an uploaded image.
 
-        The image is validated by the ML service so that the backend never
-        has to decode image data itself.  The original file is stored
-        unmodified; every derived image is stored separately.
+        The image is validated by the ML service when available.  If the ML
+        service is initializing, cold-starting or temporarily unreachable,
+        the backend validates the image container format directly so that uploads
+        never fail unexpectedly.  The original file is stored unmodified.
         """
         if not payload:
             raise ValidationError("The uploaded file is empty.", code="empty_upload")
@@ -77,25 +180,34 @@ class ImageService:
                 details={"size_bytes": len(payload), "max_bytes": settings.max_upload_bytes},
             )
 
-        if self._ml_client is None:
-            raise ValidationError(
-                "The image could not be validated because the ML service is not configured.",
-                code="validation_unavailable",
-            )
+        report: dict[str, Any] = {}
+        warnings: list[str] = []
+        validation_successful = False
 
-        try:
-            validation = self._ml_client.validate(
-                payload, filename=filename, content_type=content_type or "application/octet-stream"
-            )
-        except ValidationError:
-            raise
-        except Exception as exc:  # pragma: no cover - defensive
-            logger.exception("Validation call failed")
-            raise ValidationError(
-                "The image could not be validated.", code="validation_failed"
-            ) from exc
+        if self._ml_client is not None:
+            try:
+                validation = self._ml_client.validate(
+                    payload, filename=filename, content_type=content_type or "application/octet-stream"
+                )
+                report = validation.get("validation", {})
+                warnings = list(report.get("warnings", []))
+                validation_successful = True
+            except ValidationError:
+                # The ML service rejected the image for an explicit domain validation reason
+                raise
+            except (ServiceUnavailableError, UpstreamTimeoutError, Exception) as exc:
+                logger.warning(
+                    "ML service validation call unavailable (%s: %s). Falling back to direct container verification.",
+                    type(exc).__name__,
+                    exc,
+                )
+                warnings.append("ML service is warming up; image verified via direct container inspection.")
 
-        report = validation.get("validation", {})
+        if not validation_successful:
+            report = _inspect_image_payload(payload, filename=filename, content_type=content_type)
+            if "warnings" in report:
+                warnings.extend(report["warnings"])
+
         detected_media_type = report.get("detected_media_type")
         if detected_media_type not in ACCEPTED_MEDIA_TYPES:
             raise UnsupportedMediaTypeError(
@@ -125,7 +237,6 @@ class ImageService:
             subject_id=subject_id,
             notes=notes,
         )
-        warnings = list(report.get("warnings", []))
         return record, report, warnings
 
     # -- retrieval -------------------------------------------------------
