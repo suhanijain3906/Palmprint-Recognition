@@ -121,3 +121,4 @@ router.add_api_route(
 )
 
 __all__ = ["router"]
+
