@@ -72,6 +72,10 @@ export function HomePage() {
             <Upload className="mr-2 h-4 w-4" />
             Upload a palmprint image
           </Link>
+          <Link to="/analysis" className="btn-secondary">
+            <Scan className="mr-2 h-4 w-4" />
+            Palmprint Analysis
+          </Link>
           <Link to="/dashboard" className="btn-secondary">
             Open the dashboard
           </Link>
