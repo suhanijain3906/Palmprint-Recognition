@@ -17,6 +17,7 @@ const DatasetsPage = lazy(() => import('../pages/DatasetsPage'))
 const ExperimentsPage = lazy(() => import('../pages/ExperimentsPage'))
 const ReportsPage = lazy(() => import('../pages/ReportsPage'))
 const AboutPage = lazy(() => import('../pages/AboutPage'))
+const AnalysisPage = lazy(() => import('../pages/AnalysisPage'))
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'))
 
 function withSuspense(element: ReactNode) {
@@ -47,7 +48,11 @@ export const router = createBrowserRouter([
       { path: 'experiments', element: withSuspense(<ExperimentsPage />) },
       { path: 'reports', element: withSuspense(<ReportsPage />) },
       { path: 'about', element: withSuspense(<AboutPage />) },
+      { path: 'analysis', element: withSuspense(<AnalysisPage />) },
+      { path: 'analyze', element: withSuspense(<AnalysisPage />) },
+      { path: 'palmprint-analysis', element: withSuspense(<AnalysisPage />) },
       { path: '*', element: withSuspense(<NotFoundPage />) },
     ],
   },
 ])
+

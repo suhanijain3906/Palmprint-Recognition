@@ -22,6 +22,7 @@ const navItems = [
   { path: '/upload', label: 'Upload', icon: Upload },
   { path: '/processing', label: 'Processing', icon: Image },
   { path: '/quality', label: 'Quality', icon: BarChart3 },
+  { path: '/analysis', label: 'Analysis', icon: BarChart3 },
   { path: '/recognition', label: 'Recognition', icon: Target },
   { path: '/comparison', label: 'Comparison', icon: GitCompare },
   { path: '/landmarks', label: 'Landmarks', icon: MapPin },
@@ -102,3 +103,5 @@ export function Layout() {
     </div>
   )
 }
+
+
