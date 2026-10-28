@@ -23,6 +23,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .api.routes import (
+    analysis_router,
     artifacts_router,
     auth_router,
     comparison_router,
@@ -30,6 +31,7 @@ from .api.routes import (
     experiments_router,
     health_router,
     images_router,
+    palmprints_router,
     processing_router,
     recognition_router,
     reports_router,
@@ -101,8 +103,8 @@ def create_app() -> FastAPI:
         )
 
     cors_options: dict[str, object] = {
-        "allow_methods": ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-        "allow_headers": ["Authorization", "Content-Type", "X-Service-Token"],
+        "allow_methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
+        "allow_headers": ["*"],
     }
     if allow_any_origin:
         # Echo the caller's origin.  This keeps credentialed requests working
@@ -135,15 +137,23 @@ def create_app() -> FastAPI:
         )
 
     app.include_router(health_router)
-    app.include_router(auth_router, prefix=settings.api_prefix)
-    app.include_router(images_router, prefix=settings.api_prefix)
-    app.include_router(processing_router, prefix=settings.api_prefix)
-    app.include_router(recognition_router, prefix=settings.api_prefix)
-    app.include_router(comparison_router, prefix=settings.api_prefix)
-    app.include_router(experiments_router, prefix=settings.api_prefix)
-    app.include_router(datasets_router, prefix=settings.api_prefix)
-    app.include_router(reports_router, prefix=settings.api_prefix)
-    app.include_router(artifacts_router, prefix=settings.api_prefix)
+    api_routers = [
+        auth_router,
+        images_router,
+        palmprints_router,
+        analysis_router,
+        processing_router,
+        recognition_router,
+        comparison_router,
+        experiments_router,
+        datasets_router,
+        reports_router,
+        artifacts_router,
+    ]
+    for r in api_routers:
+        app.include_router(r, prefix=settings.api_prefix)
+        if settings.api_prefix != "/api":
+            app.include_router(r, prefix="/api")
 
     return app
 

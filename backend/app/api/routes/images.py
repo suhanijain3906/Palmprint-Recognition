@@ -39,6 +39,7 @@ def to_response(image: ImageRecord) -> ImageResponse:
 
 
 @router.get("", response_model=Page[ImageResponse], summary="List the uploaded images")
+@router.get("/", response_model=Page[ImageResponse], include_in_schema=False)
 def list_images(
     session: DbSession,
     user: CurrentUser,
@@ -69,6 +70,24 @@ def list_images(
     status_code=status.HTTP_201_CREATED,
     summary="Upload a palmprint image",
 )
+@router.post(
+    "/upload/",
+    response_model=ImageUploadResponse,
+    status_code=status.HTTP_201_CREATED,
+    include_in_schema=False,
+)
+@router.post(
+    "",
+    response_model=ImageUploadResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Upload a palmprint image (POST /images)",
+)
+@router.post(
+    "/",
+    response_model=ImageUploadResponse,
+    status_code=status.HTTP_201_CREATED,
+    include_in_schema=False,
+)
 def upload_image(
     session: DbSession,
     user: CurrentUser,
@@ -97,6 +116,7 @@ def upload_image(
 
 
 @router.get("/{image_id}", response_model=ImageResponse, summary="Get the metadata of an image")
+@router.get("/{image_id}/", response_model=ImageResponse, include_in_schema=False)
 def get_image(image_id: str, session: DbSession, user: CurrentUser) -> ImageResponse:
     """Return the metadata of a single image."""
     record = ImageRepository(session).get(image_id)

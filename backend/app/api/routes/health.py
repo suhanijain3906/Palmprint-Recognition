@@ -15,6 +15,9 @@ router = APIRouter(tags=["health"])
 
 
 @router.get("/health", response_model=HealthResponse, summary="Service health")
+@router.head("/health", include_in_schema=False)
+@router.get("/health/", response_model=HealthResponse, include_in_schema=False)
+@router.head("/health/", include_in_schema=False)
 def health() -> HealthResponse:
     """Report the health of the backend and of its dependencies."""
     database_status = "ok"
@@ -63,6 +66,9 @@ def health() -> HealthResponse:
 
 
 @router.get("/ready", summary="Readiness probe")
+@router.head("/ready", include_in_schema=False)
+@router.get("/ready/", include_in_schema=False)
+@router.head("/ready/", include_in_schema=False)
 def ready() -> dict[str, str]:
     """Simple readiness probe used by container health checks."""
     from sqlalchemy import text

@@ -33,6 +33,7 @@ def _response(outcome: dict[str, Any]) -> ProcessingResponse:
 
 
 @router.post("/roi", response_model=ProcessingResponse, summary="Extract a region of interest")
+@router.post("/roi/", response_model=ProcessingResponse, include_in_schema=False)
 def extract_roi(
     session: DbSession,
     user: CurrentUser,
@@ -55,6 +56,7 @@ def extract_roi(
 
 
 @router.post("/enhancement", response_model=ProcessingResponse, summary="Enhance an image")
+@router.post("/enhancement/", response_model=ProcessingResponse, include_in_schema=False)
 def enhance_image(
     session: DbSession,
     user: CurrentUser,
@@ -73,6 +75,7 @@ def enhance_image(
 
 
 @router.post("/quality", response_model=ProcessingResponse, summary="Assess the image quality")
+@router.post("/quality/", response_model=ProcessingResponse, include_in_schema=False)
 def assess_quality(
     session: DbSession,
     user: CurrentUser,
@@ -86,6 +89,7 @@ def assess_quality(
 
 
 @router.post("/features", response_model=ProcessingResponse, summary="Extract image features")
+@router.post("/features/", response_model=ProcessingResponse, include_in_schema=False)
 def extract_features(
     session: DbSession,
     user: CurrentUser,
@@ -104,6 +108,7 @@ def extract_features(
 
 
 @router.post("/landmarks", response_model=ProcessingResponse, summary="Visualise feature points")
+@router.post("/landmarks/", response_model=ProcessingResponse, include_in_schema=False)
 def visualize_landmarks(
     session: DbSession,
     user: CurrentUser,

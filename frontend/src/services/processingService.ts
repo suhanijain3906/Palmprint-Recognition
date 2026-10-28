@@ -54,6 +54,22 @@ export const processingService = {
     const { data } = await apiClient.post<ProcessingResponse>('/processing/landmarks', params)
     return data
   },
+
+  async analyzePalmprint(params: { image_id?: string; file?: File }): Promise<any> {
+    if (params.file) {
+      const form = new FormData()
+      form.append('file', params.file)
+      const { data } = await apiClient.post('/analysis/palmprint', form)
+      return data
+    }
+    const { data } = await apiClient.post('/analysis/palmprint', { image_id: params.image_id })
+    return data
+  },
+
+  async getAnalysis(analysisId: string): Promise<any> {
+    const { data } = await apiClient.get(`/analysis/${analysisId}`)
+    return data
+  },
 }
 
 export default processingService

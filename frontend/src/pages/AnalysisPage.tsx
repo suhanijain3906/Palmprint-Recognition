@@ -222,7 +222,7 @@ export function AnalysisPage() {
             <Card title="Quality Assessment">
               <div className="mb-2 flex items-center gap-2 text-sm text-slate-600">
                 <BarChart3 className="h-4 w-4" />
-                <span>{quality.algorithm} v{quality.algorithm_version || '1.0.0'} • {quality.processing_time_ms.toFixed(1)} ms</span>
+                <span>{quality.algorithm} v{quality.algorithm_version || '1.0.0'} â€¢ {quality.processing_time_ms.toFixed(1)} ms</span>
               </div>
               {quality.metrics && Object.keys(quality.metrics).length > 0 && (
                 <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">

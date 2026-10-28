@@ -2,6 +2,25 @@
   "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist",
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/api/v1/:path*",
+      "destination": "https://palmprint-recognition.onrender.com/api/v1/:path*"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "https://palmprint-recognition.onrender.com/api/v1/:path*"
+    },
+    {
+      "source": "/health",
+      "destination": "https://palmprint-recognition.onrender.com/health"
+    },
+    {
+      "source": "/ready",
+      "destination": "https://palmprint-recognition.onrender.com/ready"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }
