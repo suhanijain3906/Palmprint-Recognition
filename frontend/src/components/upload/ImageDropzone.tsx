@@ -12,15 +12,15 @@ interface ImageDropzoneProps {
   disabled?: boolean
 }
 
-const ACCEPTED = ['image/png', 'image/jpeg', 'image/jpg']
-const ACCEPTED_EXTENSIONS = ['.jpg', '.jpeg', '.png']
+const ACCEPTED = ['image/png', 'image/jpeg', 'image/jpg', 'image/pjpeg', 'image/bmp', 'image/tiff', 'image/webp']
+const ACCEPTED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif', '.webp', '.jfif']
 const MAX_BYTES = 12 * 1024 * 1024
 
 export function validateFile(file: File): string | null {
   const name = file.name.toLowerCase()
   const isValidType = ACCEPTED.includes(file.type) || ACCEPTED_EXTENSIONS.some((ext) => name.endsWith(ext))
   if (!isValidType) {
-    return `Unsupported format "${file.type || 'unknown'}". Use JPG, JPEG, or PNG.`
+    return `Unsupported format "${file.type || 'unknown'}". Use JPG, JPEG, PNG, BMP, TIFF, or WebP.`
   }
   if (file.size === 0) {
     return 'The selected file is empty.'

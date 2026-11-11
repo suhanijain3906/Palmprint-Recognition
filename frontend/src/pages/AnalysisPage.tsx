@@ -44,9 +44,12 @@ export function AnalysisPage() {
       setPreview(null)
       return
     }
-    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/tiff', 'image/bmp']
-    if (!validTypes.includes(f.type)) {
-      setError('Invalid file type. Please upload a PNG, JPEG, TIFF, or BMP image.')
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/pjpeg', 'image/tiff', 'image/bmp', 'image/webp']
+    const validExtensions = ['.png', '.jpg', '.jpeg', '.jpe', '.jfif', '.tiff', '.tif', '.bmp', '.webp']
+    const fileName = (f.name || '').toLowerCase()
+    const hasValidExt = validExtensions.some(ext => fileName.endsWith(ext))
+    if (!validTypes.includes(f.type) && !hasValidExt) {
+      setError('Invalid file type. Please upload a PNG, JPEG, TIFF, BMP, or WebP image.')
       setFile(null)
       setPreview(null)
       return

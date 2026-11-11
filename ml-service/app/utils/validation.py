@@ -112,7 +112,7 @@ def validate_payload(
             f"The client declared '{declared_content_type}' but the content is '{detected}'."
         )
 
-    if decoded.original_format not in {"PNG", "JPEG", "BMP", "TIFF", "WEBP"}:
+    if decoded.original_format not in {"PNG", "JPEG", "BMP", "TIFF", "WEBP", "MPO"}:
         warnings.append(
             f"The container reported the format '{decoded.original_format}'; "
             "only PNG, JPEG, BMP, TIFF and WebP are supported."

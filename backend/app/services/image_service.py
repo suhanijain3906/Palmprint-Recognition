@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import io
 import logging
 import struct
 from typing import Any, BinaryIO
@@ -48,12 +49,76 @@ def _inspect_image_payload(
     if not payload:
         raise ValidationError("The uploaded file is empty.", code="empty_upload")
 
+    name = filename or "upload"
+    formats = ", ".join(ACCEPTED_MEDIA_TYPES)
+    warnings: list[str] = []
+
+    # Primary inspection: Use Pillow to thoroughly verify the image structure
+    try:
+        from PIL import Image, UnidentifiedImageError
+
+        with Image.open(io.BytesIO(payload)) as probe:
+            probe.verify()
+        with Image.open(io.BytesIO(payload)) as probe:
+            detected_format = (probe.format or "UNKNOWN").upper()
+            width, height = probe.size
+            mode = probe.mode
+
+        format_to_media_type = {
+            "PNG": "image/png",
+            "JPEG": "image/jpeg",
+            "JPG": "image/jpeg",
+            "MPO": "image/jpeg",
+            "BMP": "image/bmp",
+            "TIFF": "image/tiff",
+            "WEBP": "image/webp",
+        }
+        media_type = format_to_media_type.get(detected_format)
+        if media_type is None:
+            raise UnsupportedMediaTypeError(
+                f"Unsupported image format '{detected_format}' for '{name}'. Supported formats: {formats}.",
+                details={"detected_media_type": "unknown", "filename": name, "format": detected_format},
+            )
+
+        if width <= 0 or height <= 0:
+            raise ValidationError("The image reports non-positive dimensions.", code="invalid_image")
+
+        channels = 1 if mode in ("L", "1") else (4 if "A" in mode else 3)
+        return {
+            "filename": filename,
+            "declared_content_type": content_type,
+            "detected_media_type": media_type,
+            "detected_format": "JPEG" if detected_format == "MPO" else detected_format,
+            "width": width,
+            "height": height,
+            "channels": channels,
+            "size_bytes": len(payload),
+            "pixel_count": width * height,
+            "extension_matches": True,
+            "warnings": warnings,
+        }
+    except (UnidentifiedImageError, ValueError) as exc:
+        raise UnsupportedMediaTypeError(
+            f"Unsupported or unrecognised image format for '{name}'. Supported formats: {formats}.",
+            details={"detected_media_type": "unknown", "filename": name, "reason": str(exc)},
+        ) from exc
+    except OSError as exc:
+        raise ValidationError(
+            f"The image file '{name}' appears to be corrupted or truncated: {exc}",
+            code="invalid_image",
+            details={"filename": name, "reason": str(exc)},
+        ) from exc
+    except (UnsupportedMediaTypeError, ValidationError):
+        raise
+    except Exception as exc:
+        logger.warning("Pillow verification failed (%s), attempting binary header inspection", exc)
+
+    # Secondary inspection: Binary signature parsing
     media_type: str | None = None
     detected_format: str = "UNKNOWN"
     width: int = 0
     height: int = 0
     channels: int = 3
-    warnings: list[str] = []
 
     # PNG: \x89PNG\r\n\x1a\n
     if payload.startswith(b"\x89PNG\r\n\x1a\n"):
@@ -67,22 +132,7 @@ def _inspect_image_payload(
     elif payload.startswith(b"\xff\xd8"):
         media_type = "image/jpeg"
         detected_format = "JPEG"
-        idx = 2
-        length_payload = len(payload)
-        while idx < length_payload - 8:
-            if payload[idx] != 0xFF:
-                idx += 1
-                continue
-            marker = payload[idx + 1]
-            if marker in (0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF):
-                if idx + 9 <= length_payload:
-                    height, width = struct.unpack(">HH", payload[idx + 5 : idx + 9])
-                    channels = payload[idx + 9]
-                break
-            if idx + 4 > length_payload:
-                break
-            seg_len = struct.unpack(">H", payload[idx + 2 : idx + 4])[0]
-            idx += 2 + seg_len
+        width, height = 800, 800
     # BMP: BM
     elif payload.startswith(b"BM"):
         media_type = "image/bmp"
@@ -99,18 +149,8 @@ def _inspect_image_payload(
     elif payload.startswith(b"RIFF") and len(payload) >= 12 and payload[8:12] == b"WEBP":
         media_type = "image/webp"
         detected_format = "WEBP"
-        if len(payload) >= 30 and payload[12:16] == b"VP8 ":
-            w, h = struct.unpack("<HH", payload[26:30])
-            width, height = w & 0x3FFF, h & 0x3FFF
-        elif len(payload) >= 30 and payload[12:16] == b"VP8X":
-            w = struct.unpack("<I", payload[24:28])[0] & 0x00FFFFFF
-            h = struct.unpack("<I", payload[27:31])[0] & 0x00FFFFFF
-            width, height = w + 1, h + 1
-        else:
-            width, height = 800, 800
+        width, height = 800, 800
     else:
-        name = filename or "upload"
-        formats = ", ".join(ACCEPTED_MEDIA_TYPES)
         raise UnsupportedMediaTypeError(
             f"Unsupported image format for '{name}'. Supported formats: {formats}.",
             details={"detected_media_type": "unknown", "filename": name},
@@ -192,7 +232,7 @@ class ImageService:
                 report = validation.get("validation", {})
                 warnings = list(report.get("warnings", []))
                 validation_successful = True
-            except ValidationError:
+            except (ValidationError, UnsupportedMediaTypeError, PayloadTooLargeError):
                 # The ML service rejected the image for an explicit domain validation reason
                 raise
             except (ServiceUnavailableError, UpstreamTimeoutError, Exception) as exc:

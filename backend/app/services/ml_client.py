@@ -133,7 +133,11 @@ class MLServiceClient:
             details = {"upstream_status": response.status_code}
 
         mapped = _ERROR_CODE_MAP.get(code, code)
-        if response.status_code in (400, 413, 415, 422):
+        if response.status_code == 413:
+            raise PayloadTooLargeError(message, details={**details, "upstream_status": 413})
+        if response.status_code == 415:
+            raise UnsupportedMediaTypeError(message, details={**details, "upstream_status": 415})
+        if response.status_code in (400, 422):
             raise ValidationError(
                 message, code=mapped, details={**details, "upstream_status": response.status_code}
             )

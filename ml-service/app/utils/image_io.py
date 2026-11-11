@@ -25,7 +25,7 @@ from .errors import InvalidImageError, PayloadTooLargeError
 #: Magic byte prefixes used to sniff the real container of a payload.
 _MAGIC_SIGNATURES: tuple[tuple[bytes, str], ...] = (
     (b"\x89PNG\r\n\x1a\n", "image/png"),
-    (b"\xff\xd8\xff", "image/jpeg"),
+    (b"\xff\xd8", "image/jpeg"),
     (b"BM", "image/bmp"),
     (b"II*\x00", "image/tiff"),
     (b"MM\x00*", "image/tiff"),
@@ -38,6 +38,9 @@ _EXTENSION_MEDIA_TYPES: dict[str, str] = {
     ".jpg": "image/jpeg",
     ".jpeg": "image/jpeg",
     ".jpe": "image/jpeg",
+    ".jfif": "image/jpeg",
+    ".pjpeg": "image/jpeg",
+    ".pjp": "image/jpeg",
     ".bmp": "image/bmp",
     ".tif": "image/tiff",
     ".tiff": "image/tiff",
@@ -146,10 +149,15 @@ def decode_image(
     buffer = np.frombuffer(data, dtype=np.uint8)
     decoded = cv2.imdecode(buffer, cv2.IMREAD_UNCHANGED)
     if decoded is None:
-        raise InvalidImageError(
-            "The image could not be decoded by the OpenCV backend.",
-            details={"detected_format": detected_format},
-        )
+        try:
+            with Image.open(io.BytesIO(data)) as pil_img:
+                pil_rgb = pil_img.convert("RGB")
+                decoded = cv2.cvtColor(np.array(pil_rgb), cv2.COLOR_RGB2BGR)
+        except Exception:
+            raise InvalidImageError(
+                "The image could not be decoded by the OpenCV backend.",
+                details={"detected_format": detected_format},
+            )
 
     if decoded.dtype != np.uint8:
         raise InvalidImageError(
